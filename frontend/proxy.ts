@@ -1,13 +1,13 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/server";
 
-export default clerkMiddleware();
+export default auth.middleware({
+  // Redirects unauthenticated users to sign-in page
+  loginUrl: "/auth/sign-in",
+});
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
-    "/__clerk/:path*",
+    // Protected routes requiring authentication
+    "/account/:path*",
   ],
 };

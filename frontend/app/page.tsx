@@ -2,14 +2,21 @@ import Header from "@/components/Header";
 import { Component as HorizonHero } from "@/components/ui/horizon-hero-section";
 import Showcase from "@/components/Showcase";
 import IntroAnimation from "@/components/ui/scroll-morph-hero";
+import { auth } from "@/lib/auth/server";
+import Link from "next/link";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const { data: session } = await auth.getSession();
+  const isLoggedIn = !!session?.user;
+
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
-      {/* Fixed header — sits above the Three.js canvas */}
+      {/* Fixed header */}
       <Header />
 
-      {/* Full-scroll 3D Hero — takes up (totalSections + 1) × 100vh of scroll space */}
+      {/* Full-scroll 3D Hero */}
       <HorizonHero />
 
       {/* Below-the-fold sections */}
@@ -30,7 +37,7 @@ export default function Home() {
             an intelligent, interactive portfolio in seconds.
           </p>
 
-          {/* Input */}
+          {/* Input / CTA Button */}
           <div className="w-full max-w-lg relative group mt-4">
             <div className="absolute -inset-1.5 bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 rounded-full blur opacity-30 group-hover:opacity-60 transition duration-700 -z-10" />
             <div className="flex items-center bg-zinc-950 border border-white/10 rounded-full p-2 shadow-2xl backdrop-blur-xl">
@@ -39,8 +46,11 @@ export default function Home() {
                 placeholder="Paste your LinkedIn URL…"
                 className="flex-1 bg-transparent text-white placeholder-zinc-500 px-5 py-3.5 outline-none text-base"
               />
-              <button className="bg-white text-black font-bold rounded-full px-7 py-3.5 hover:bg-zinc-200 active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                Generate
+              <Link
+                href={isLoggedIn ? "/dashboard" : "/auth/sign-up"}
+                className="bg-white text-black font-bold rounded-full px-7 py-3.5 hover:bg-zinc-200 active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] cursor-pointer text-sm"
+              >
+                {isLoggedIn ? "Go to Dashboard" : "Generate"}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-4 w-4"
@@ -54,18 +64,18 @@ export default function Home() {
                   <path d="M5 12h14" />
                   <path d="m12 5 7 7-7 7" />
                 </svg>
-              </button>
+              </Link>
             </div>
           </div>
 
           <p className="text-sm text-zinc-600">
             No credit card required.{" "}
-            <a
-              href="/upload"
-              className="text-cyan-500 hover:text-cyan-300 transition-colors underline underline-offset-4"
+            <Link
+              href={isLoggedIn ? "/dashboard" : "/auth/sign-up"}
+              className="text-cyan-500 hover:text-cyan-300 transition-colors underline underline-offset-4 cursor-pointer"
             >
               Upload Resume instead
-            </a>
+            </Link>
           </p>
         </section>
 
@@ -160,7 +170,8 @@ export default function Home() {
                   "Basic Analytics",
                   "Public URL",
                 ],
-                cta: "Get Started",
+                cta: isLoggedIn ? "Go to Dashboard" : "Get Started",
+                link: isLoggedIn ? "/dashboard" : "/auth/sign-up",
                 highlight: false,
               },
               {
@@ -175,7 +186,8 @@ export default function Home() {
                   "Priority AI responses",
                   "Remove Branding",
                 ],
-                cta: "Start Free Trial",
+                cta: isLoggedIn ? "Go to Dashboard" : "Start Free Trial",
+                link: isLoggedIn ? "/dashboard" : "/auth/sign-up",
                 highlight: true,
               },
             ].map((plan) => (
@@ -213,15 +225,16 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <button
-                  className={`w-full py-3.5 rounded-full font-semibold text-sm transition-all active:scale-95 ${
+                <Link
+                  href={plan.link}
+                  className={`w-full py-3.5 rounded-full font-semibold text-sm transition-all active:scale-95 flex items-center justify-center cursor-pointer ${
                     plan.highlight
                       ? "bg-white text-black hover:bg-zinc-200 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                       : "bg-white/10 text-white hover:bg-white/20 border border-white/10"
                   }`}
                 >
                   {plan.cta}
-                </button>
+                </Link>
               </div>
             ))}
           </div>
@@ -234,13 +247,13 @@ export default function Home() {
           </span>
           <p>© {new Date().getFullYear()} Twinfolio. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-zinc-400 transition-colors">
+            <a href="#" className="hover:text-zinc-400 transition-colors cursor-pointer">
               Privacy
             </a>
-            <a href="#" className="hover:text-zinc-400 transition-colors">
+            <a href="#" className="hover:text-zinc-400 transition-colors cursor-pointer">
               Terms
             </a>
-            <a href="#" className="hover:text-zinc-400 transition-colors">
+            <a href="#" className="hover:text-zinc-400 transition-colors cursor-pointer">
               Contact
             </a>
           </div>

@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import { Component as HorizonHero } from "@/components/ui/horizon-hero-section";
 import Showcase from "@/components/Showcase";
+import IntroAnimation from "@/components/ui/scroll-morph-hero";
 
 export default function Home() {
   return (
@@ -66,6 +67,13 @@ export default function Home() {
               Upload Resume instead
             </a>
           </p>
+        </section>
+
+        {/* Scroll Morph Gallery */}
+        <section className="w-full max-w-6xl mx-auto px-6 pb-24 flex flex-col items-center">
+          <p className="text-xs tracking-[0.5em] uppercase text-zinc-500 mb-4">Interactive Showcase</p>
+          <h3 className="text-3xl md:text-5xl font-bold text-white mb-8 text-center tracking-tight">Interactive Project Vault</h3>
+          <IntroAnimation />
         </section>
 
         {/* AI showcase */}

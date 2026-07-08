@@ -287,7 +287,18 @@ export default function SignInPage() {
       });
 
       if (authError) {
-        setError(authError.message || "Failed to sign in. Please verify your details.");
+        // Detect unverified email — redirect to the verify page with email pre-filled
+        const msg = authError.message?.toLowerCase() || "";
+        if (
+          msg.includes("verify") ||
+          msg.includes("verified") ||
+          msg.includes("email not verified") ||
+          msg.includes("verification")
+        ) {
+          router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
+        } else {
+          setError(authError.message || "Failed to sign in. Please check your credentials.");
+        }
       } else {
         router.push("/dashboard");
       }
@@ -597,6 +608,13 @@ export default function SignInPage() {
             Don't have an account?{" "}
             <Link href="/auth/sign-up" className="text-white font-medium hover:underline cursor-pointer">
               Sign Up
+            </Link>
+          </div>
+
+          <div className="text-center text-xs text-zinc-600 mt-3">
+            Already registered but not verified?{" "}
+            <Link href="/auth/verify" className="text-cyan-500 hover:text-cyan-300 transition-colors cursor-pointer">
+              Verify your email
             </Link>
           </div>
         </div>

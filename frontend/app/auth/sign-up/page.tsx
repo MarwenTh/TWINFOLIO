@@ -295,7 +295,16 @@ export default function SignUpPage() {
       });
 
       if (authError) {
-        setError(authError.message || "Failed to create account.");
+        let msg = authError.message || "Failed to create account.";
+        const lowMsg = msg.toLowerCase();
+        if (
+          lowMsg.includes("already exists") ||
+          lowMsg.includes("duplicate") ||
+          lowMsg.includes("registered")
+        ) {
+          msg = "This email is already registered. Please sign in or use a different email.";
+        }
+        setError(msg);
         setIsLoading(false);
         return;
       }
@@ -307,8 +316,17 @@ export default function SignUpPage() {
       } else {
         router.push("/dashboard");
       }
-    } catch (err) {
-      setError("An error occurred during sign up.");
+    } catch (err: any) {
+      let msg = "An error occurred during sign up.";
+      const lowMsg = (err?.message || "").toLowerCase();
+      if (
+        lowMsg.includes("already exists") ||
+        lowMsg.includes("duplicate") ||
+        lowMsg.includes("registered")
+      ) {
+        msg = "This email is already registered. Please sign in or use a different email.";
+      }
+      setError(msg);
     } finally {
       setIsLoading(false);
     }

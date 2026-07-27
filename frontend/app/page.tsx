@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import { Component as HorizonHero } from "@/components/ui/horizon-hero-section";
 import Showcase from "@/components/Showcase";
-import IntroAnimation from "@/components/ui/scroll-morph-hero";
+import { FullScreenScrollFX } from "@/components/ui/full-screen-scroll-fx";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 
@@ -79,11 +79,44 @@ export default async function Home() {
           </p>
         </section>
 
-        {/* Scroll Morph Gallery */}
-        <section className="w-full max-w-6xl mx-auto px-6 pb-24 flex flex-col items-center">
-          <p className="text-xs tracking-[0.5em] uppercase text-zinc-500 mb-4">Interactive Showcase</p>
-          <h3 className="text-3xl md:text-5xl font-bold text-white mb-8 text-center tracking-tight">Interactive Project Vault</h3>
-          <IntroAnimation />
+        {/* Scroll Morph Gallery (Interactive Project Vault) */}
+        <section id="showcase" className="w-full">
+          <FullScreenScrollFX
+            sections={[
+              {
+                leftLabel: "01 / ARCHITECTURE",
+                title: "Digital Twin Engine",
+                rightLabel: "AI Agent core",
+                background: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop",
+              },
+              {
+                leftLabel: "02 / INTERFACE",
+                title: "Dynamic Canvas",
+                rightLabel: "Responsive layouts",
+                background: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1200&auto=format&fit=crop",
+              },
+              {
+                leftLabel: "03 / KNOWLEDGE",
+                title: "Vector Database",
+                rightLabel: "Resume & LinkedIn parser",
+                background: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200&auto=format&fit=crop",
+              },
+              {
+                leftLabel: "04 / ANALYTICS",
+                title: "Visitor Insights",
+                rightLabel: "Real-time engagement tracking",
+                background: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop",
+              },
+            ]}
+            header={
+              <div className="text-white/20 select-none pointer-events-none">
+                <span className="text-xs tracking-[0.6em] block mb-2 text-cyan-400">interactive showcase</span>
+                <span>PROJECT VAULT</span>
+              </div>
+            }
+            showProgress
+            durations={{ change: 0.7, snap: 800 }}
+          />
         </section>
 
         {/* AI showcase */}

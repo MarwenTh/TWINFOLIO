@@ -2,14 +2,14 @@ import Header from "@/components/Header";
 import { Component as HorizonHero } from "@/components/ui/horizon-hero-section";
 import Showcase from "@/components/Showcase";
 import IntroAnimation from "@/components/ui/scroll-morph-hero";
-import { auth } from "@/lib/auth/server";
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const { data: session } = await auth.getSession();
-  const isLoggedIn = !!session?.user;
+  const { userId } = await auth();
+  const isLoggedIn = !!userId;
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
@@ -47,7 +47,7 @@ export default async function Home() {
                 className="flex-1 bg-transparent text-white placeholder-zinc-500 px-5 py-3.5 outline-none text-base"
               />
               <Link
-                href={isLoggedIn ? "/dashboard" : "/auth/sign-up"}
+                href={isLoggedIn ? "/dashboard" : "/sign-up"}
                 className="bg-white text-black font-bold rounded-full px-7 py-3.5 hover:bg-zinc-200 active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] cursor-pointer text-sm"
               >
                 {isLoggedIn ? "Go to Dashboard" : "Generate"}
@@ -71,7 +71,7 @@ export default async function Home() {
           <p className="text-sm text-zinc-600">
             No credit card required.{" "}
             <Link
-              href={isLoggedIn ? "/dashboard" : "/auth/sign-up"}
+              href={isLoggedIn ? "/dashboard" : "/sign-up"}
               className="text-cyan-500 hover:text-cyan-300 transition-colors underline underline-offset-4 cursor-pointer"
             >
               Upload Resume instead
@@ -171,7 +171,7 @@ export default async function Home() {
                   "Public URL",
                 ],
                 cta: isLoggedIn ? "Go to Dashboard" : "Get Started",
-                link: isLoggedIn ? "/dashboard" : "/auth/sign-up",
+                link: isLoggedIn ? "/dashboard" : "/sign-up",
                 highlight: false,
               },
               {
@@ -187,7 +187,7 @@ export default async function Home() {
                   "Remove Branding",
                 ],
                 cta: isLoggedIn ? "Go to Dashboard" : "Start Free Trial",
-                link: isLoggedIn ? "/dashboard" : "/auth/sign-up",
+                link: isLoggedIn ? "/dashboard" : "/sign-up",
                 highlight: true,
               },
             ].map((plan) => (

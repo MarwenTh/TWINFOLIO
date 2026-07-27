@@ -1,20 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
 
 /**
- * Global site header with Neon Auth controls.
- * Shows Log In / Start Free when signed out, User Profile / Sign Out when signed in.
+ * Global site header with Clerk auth controls.
+ * Shows Log In / Start Free when signed out, UserButton when signed in.
  */
 export default function Header() {
-  const { data: session, isPending } = authClient.useSession();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const handleSignOut = async () => {
-    await authClient.signOut();
-  };
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { isSignedIn, isLoaded } = useUser();
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-black/40 backdrop-blur-lg border-b border-white/10">
@@ -52,64 +48,52 @@ export default function Header() {
         </nav>
 
         {/* Auth Controls */}
-        <div className="flex gap-4 items-center min-w-[140px] justify-end relative">
-          {isPending ? (
-            /* Loading skeleton */
+        <div className="flex gap-4 items-center min-w-[140px] justify-end">
+          {/* Loading skeleton */}
+          {!isLoaded && (
             <div className="w-9 h-9 rounded-full bg-white/10 animate-pulse" />
-          ) : session?.user ? (
-            /* Signed-in user menu */
-            <div className="relative">
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 px-4 py-2 rounded-full transition-all text-sm text-white cursor-pointer"
-              >
-                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-violet-500 to-cyan-500 flex items-center justify-center font-bold text-xs uppercase text-white shadow-md">
-                  {session.user.name?.charAt(0) || "U"}
-                </div>
-                <span className="hidden sm:inline font-medium max-w-[100px] truncate">
-                  {session.user.name}
-                </span>
-              </button>
+          )}
 
-              {dropdownOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-48 bg-zinc-950 border border-white/10 rounded-2xl p-2 shadow-2xl z-20 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200">
-                    <Link
-                      href="/dashboard"
-                      className="block px-4 py-2.5 text-sm text-zinc-300 hover:bg-white/5 rounded-xl transition-all cursor-pointer"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-white/5 rounded-xl transition-all cursor-pointer"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            /* Signed-out */
+          {/* Signed-out state */}
+          {isLoaded && !isSignedIn && (
+            <>
+              <SignInButton mode="modal">
+                <button
+                  id="header-sign-in-btn"
+                  className="hidden sm:block text-sm font-medium text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                >
+                  Log In
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button
+                  id="header-sign-up-btn"
+                  className="text-sm font-semibold bg-white text-black px-5 py-2.5 rounded-full hover:bg-zinc-200 transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.3)] cursor-pointer"
+                >
+                  Start Free
+                </button>
+              </SignUpButton>
+            </>
+          )}
+
+          {/* Signed-in state */}
+          {isLoaded && isSignedIn && (
             <>
               <Link
-                href="/auth/sign-in"
+                href="/dashboard"
                 className="hidden sm:block text-sm font-medium text-zinc-300 hover:text-white transition-colors cursor-pointer"
               >
-                Log In
+                Dashboard
               </Link>
-              <Link
-                href="/auth/sign-up"
-                className="text-sm font-semibold bg-white text-black px-5 py-2.5 rounded-full hover:bg-zinc-200 transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.3)] cursor-pointer"
-              >
-                Start Free
-              </Link>
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox:
+                      "w-9 h-9 ring-2 ring-violet-500/40 hover:ring-cyan-500/60 transition-all",
+                  },
+                }}
+              />
             </>
           )}
         </div>

@@ -336,7 +336,7 @@ export default function DashboardClient({ userName, userEmail }: DashboardClient
           {/* 3. SETTINGS VIEW                                        */}
           {/* ──────────────────────────────────────────────────────── */}
           {activeId === "settings" && (
-            <div className="space-y-10 max-w-4xl animate-in fade-in duration-200">
+            <div className="space-y-10 max-w-4xl mx-auto animate-in fade-in duration-200">
               <div>
                 <h1 className="text-3xl font-extrabold text-white">Settings</h1>
                 <p className="text-sm text-zinc-400 mt-1">Manage your account settings and preferences</p>

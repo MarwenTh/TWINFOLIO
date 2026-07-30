@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
-import { Sun, Moon } from "lucide-react";
+import Switch from "@/components/ui/sky-toggle";
 
 /**
  * Global site header with Clerk auth controls.
@@ -20,15 +20,15 @@ export default function Header() {
     setIsDark(!isLight);
   }, []);
 
-  const toggleTheme = () => {
-    if (isDark) {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.classList.add("light");
-      setIsDark(false);
-    } else {
+  const handleToggle = (checked: boolean) => {
+    if (checked) {
       document.documentElement.classList.remove("light");
       document.documentElement.classList.add("dark");
       setIsDark(true);
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+      setIsDark(false);
     }
   };
 
@@ -70,13 +70,7 @@ export default function Header() {
         {/* Auth Controls */}
         <div className="flex gap-4 items-center min-w-[180px] justify-end">
           {/* Theme switcher */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full border border-white/10 hover:bg-white/5 text-zinc-400 hover:text-white transition-colors cursor-pointer"
-            aria-label="Toggle Theme"
-          >
-            {isDark ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
-          </button>
+          <Switch checked={isDark} onChange={handleToggle} />
 
           {/* Loading skeleton */}
           {!isLoaded && (

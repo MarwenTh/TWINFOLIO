@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Switch from "@/components/ui/sky-toggle";
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -35,6 +36,24 @@ export default function DashboardClient({ userName, userEmail }: DashboardClient
   const [checklistOpen, setChecklistOpen] = useState(true);
   const [copied, setCopied] = useState(false);
   const [showBadge, setShowBadge] = useState(true);
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    const isLight = document.documentElement.classList.contains("light");
+    setIsDark(!isLight);
+  }, []);
+
+  const handleToggle = (checked: boolean) => {
+    if (checked) {
+      document.documentElement.classList.remove("light");
+      document.documentElement.classList.add("dark");
+      setIsDark(true);
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+      setIsDark(false);
+    }
+  };
 
   const portfolioUrl = `https://www.fastfol.io/${userName.toLowerCase().replace(/\s+/g, "")}`;
 
@@ -91,6 +110,7 @@ export default function DashboardClient({ userName, userEmail }: DashboardClient
           </div>
 
           <div className="flex items-center gap-4">
+            <Switch checked={isDark} onChange={handleToggle} />
             <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Live

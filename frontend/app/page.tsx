@@ -12,7 +12,7 @@ export default async function Home() {
   const isLoggedIn = !!userId;
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-cyan-500/30 overflow-x-hidden transition-colors duration-300">
       {/* Fixed header */}
       <Header />
 
@@ -20,7 +20,7 @@ export default async function Home() {
       <HorizonHero />
 
       {/* Below-the-fold sections */}
-      <main className="relative z-10 bg-black flex flex-col items-center w-full">
+      <main className="relative z-10 bg-background flex flex-col items-center w-full transition-colors duration-300">
         {/* CTA strip */}
         <section className="w-full max-w-5xl mx-auto px-6 py-32 flex flex-col items-center text-center gap-8 border-t border-white/5">
           <p className="text-xs tracking-[0.5em] uppercase text-zinc-500">

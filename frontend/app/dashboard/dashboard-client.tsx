@@ -4,200 +4,36 @@ import { useState } from "react";
 import {
   PanelLeftClose,
   PanelLeftOpen,
-  Sparkles,
-  Eye,
-  Upload,
-  BarChart2,
+  Copy,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
   MessageSquare,
+  Sparkles,
   ArrowUpRight,
-  Zap,
-  Globe,
-  Clock,
+  TrendingUp,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
-import { SidebarNav, SearchModal } from "@/components/ui/dashboard-sidebar";
-
-/* ------------------------------------------------------------------ */
-/*  Types                                                               */
-/* ------------------------------------------------------------------ */
+import { SidebarNav } from "@/components/ui/dashboard-sidebar";
 
 interface DashboardClientProps {
   userName: string;
   userEmail?: string;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Stats Card                                                          */
-/* ------------------------------------------------------------------ */
-
-function StatCard({
-  label,
-  value,
-  change,
-  icon: Icon,
-  color,
-}: {
-  label: string;
-  value: string;
-  change: string;
-  icon: React.ElementType;
-  color: string;
-}) {
-  return (
-    <div className="bg-zinc-950 border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-4 hover:border-white/10 transition-colors">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
-          {label}
-        </p>
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color}`}>
-          <Icon className="w-4 h-4" strokeWidth={1.5} />
-        </div>
-      </div>
-      <div>
-        <p className="text-3xl font-extrabold text-white">{value}</p>
-        <p className="text-xs text-zinc-500 mt-1">{change}</p>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Portfolio Card                                                       */
-/* ------------------------------------------------------------------ */
-
-function PortfolioCard({
-  name,
-  views,
-  chats,
-  status,
-  updatedAt,
-}: {
-  name: string;
-  views: number;
-  chats: number;
-  status: "live" | "draft";
-  updatedAt: string;
-}) {
-  return (
-    <div className="group flex items-center justify-between py-4 px-5 bg-zinc-950 border border-white/[0.06] rounded-xl hover:border-white/10 transition-all cursor-pointer">
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600/30 to-cyan-500/20 border border-violet-500/20 flex items-center justify-center">
-          <span className="text-sm font-bold text-violet-300">
-            {name.charAt(0)}
-          </span>
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-white">{name}</p>
-          <div className="flex items-center gap-3 mt-0.5">
-            <span
-              className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                status === "live"
-                  ? "bg-emerald-500/15 text-emerald-400"
-                  : "bg-zinc-800 text-zinc-500"
-              }`}
-            >
-              {status === "live" ? "● Live" : "◌ Draft"}
-            </span>
-            <span className="text-[11px] text-zinc-600 flex items-center gap-1">
-              <Clock className="w-3 h-3" /> {updatedAt}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-6">
-        <div className="hidden sm:flex flex-col items-end">
-          <span className="text-sm font-semibold text-white">{views.toLocaleString()}</span>
-          <span className="text-[11px] text-zinc-500">views</span>
-        </div>
-        <div className="hidden sm:flex flex-col items-end">
-          <span className="text-sm font-semibold text-white">{chats}</span>
-          <span className="text-[11px] text-zinc-500">chats</span>
-        </div>
-        <button className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white">
-          <ArrowUpRight className="w-4 h-4" strokeWidth={1.5} />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Quick Action Button                                                  */
-/* ------------------------------------------------------------------ */
-
-function QuickAction({
-  icon: Icon,
-  label,
-  description,
-  gradient,
-}: {
-  icon: React.ElementType;
-  label: string;
-  description: string;
-  gradient: string;
-}) {
-  return (
-    <button
-      className={`group w-full flex items-center gap-4 p-4 rounded-xl border border-white/[0.06] bg-zinc-950 hover:border-white/10 transition-all text-left cursor-pointer`}
-    >
-      <div
-        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${gradient}`}
-      >
-        <Icon className="w-5 h-5 text-white" strokeWidth={1.5} />
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-white">{label}</p>
-        <p className="text-xs text-zinc-500 mt-0.5">{description}</p>
-      </div>
-      <ArrowUpRight className="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 ml-auto shrink-0 transition-colors" strokeWidth={1.5} />
-    </button>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  DashboardClient                                                     */
-/* ------------------------------------------------------------------ */
-
-/**
- * Interactive dashboard shell — handles sidebar toggle, active nav,
- * search modal, and renders the main workspace content.
- */
 export default function DashboardClient({ userName, userEmail }: DashboardClientProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeId, setActiveId] = useState("overview");
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [checklistOpen, setChecklistOpen] = useState(true);
+  const [copied, setCopied] = useState(false);
 
-  const pageTitles: Record<string, string> = {
-    overview: "Overview",
-    inbox: "Inbox",
-    analytics: "Analytics",
-    portfolios: "My Portfolios",
-    "ai-twin": "AI Twin",
-    import: "Import",
-    preview: "Preview Live",
-    billing: "Billing",
-    "custom-domain": "Custom Domain",
-    team: "Team",
-    api: "API Keys",
-    webhooks: "Webhooks",
-    integrations: "Integrations",
-    settings: "Settings",
+  const portfolioUrl = `https://www.fastfol.io/${userName.toLowerCase().replace(/\s+/g, "")}`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(portfolioUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
-
-  const handleSelect = (id: string) => {
-    if (id === "search") {
-      setSearchOpen(true);
-      return;
-    }
-    setActiveId(id);
-  };
-
-  const portfolios = [
-    { name: "Product Designer Portfolio", views: 1842, chats: 94, status: "live" as const, updatedAt: "2h ago" },
-    { name: "UX Case Studies 2025", views: 673, chats: 31, status: "live" as const, updatedAt: "1d ago" },
-    { name: "Freelance Showcase", views: 0, chats: 0, status: "draft" as const, updatedAt: "3d ago" },
-  ];
 
   return (
     <div className="relative flex h-screen bg-black text-white overflow-hidden">
@@ -208,18 +44,17 @@ export default function DashboardClient({ userName, userEmail }: DashboardClient
         }`}
       >
         <SidebarNav
-          className="w-[260px]"
           activeId={activeId}
-          onSelect={handleSelect}
+          onSelect={setActiveId}
           userName={userName}
-          userPlan="Pro Plan"
+          userEmail={userEmail}
         />
       </div>
 
       {/* ── Main area ───────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-zinc-950/40">
         {/* Topbar */}
-        <header className="h-14 border-b border-white/[0.06] flex items-center px-4 justify-between bg-zinc-950/80 backdrop-blur shrink-0">
+        <header className="h-14 border-b border-white/[0.06] flex items-center px-6 justify-between bg-zinc-950/60 backdrop-blur shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -231,152 +66,234 @@ export default function DashboardClient({ userName, userEmail }: DashboardClient
                 <PanelLeftOpen className="w-[18px] h-[18px]" strokeWidth={1.5} />
               )}
             </button>
-            <div className="flex items-center gap-2 text-sm text-zinc-500">
-              <span className="truncate">{userName}</span>
-              <span>/</span>
-              <span className="font-medium text-white truncate">
-                {pageTitles[activeId] ?? "Dashboard"}
-              </span>
-            </div>
+            <span className="text-sm font-semibold tracking-wide text-white">
+              Workspace
+            </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Search shortcut */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="hidden md:flex items-center gap-2 h-8 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-zinc-500 text-xs hover:bg-white/10 hover:text-white transition-colors"
-            >
-              <span>Search…</span>
-              <kbd className="text-[10px] font-mono bg-zinc-800 px-1.5 py-0.5 rounded border border-white/10">
-                ⌘K
-              </kbd>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live
+            </div>
+            <button className="flex items-center gap-1.5 text-xs font-semibold bg-white text-black px-4 py-2 rounded-full hover:bg-zinc-200 transition-transform cursor-pointer">
+              Portfolio <ExternalLink className="w-3 h-3" />
             </button>
-            <UserButton
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  avatarBox:
-                    "w-8 h-8 ring-2 ring-violet-500/30 hover:ring-cyan-500/50 transition-all",
-                },
-              }}
-            />
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {/* Hero greeting */}
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              Twin Live
-            </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
-              Welcome back, {userName.split(" ")[0]} 👋
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Greeting Header */}
+          <div className="space-y-2">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white">
+              Hello {userName.toLowerCase().replace(/\s+/g, "")}!
             </h1>
-            <p className="text-zinc-400 text-sm mt-1.5">
-              Your AI digital twin is active and answering visitors right now.
-            </p>
+            <div className="flex items-center gap-2 text-zinc-400">
+              <span className="text-sm hover:underline cursor-pointer select-all">{portfolioUrl}</span>
+              <button
+                onClick={handleCopy}
+                className="p-1 rounded hover:bg-white/5 text-zinc-500 hover:text-white transition-colors"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+              {copied && <span className="text-xs text-cyan-400">Copied!</span>}
+            </div>
           </div>
 
-          {/* Stats grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard
-              label="Profile Views"
-              value="2,514"
-              change="+18% this week"
-              icon={Eye}
-              color="bg-violet-500/20 text-violet-400"
-            />
-            <StatCard
-              label="AI Chats"
-              value="147"
-              change="+23% this week"
-              icon={MessageSquare}
-              color="bg-cyan-500/20 text-cyan-400"
-            />
-            <StatCard
-              label="Visitors Today"
-              value="89"
-              change="vs 64 yesterday"
-              icon={BarChart2}
-              color="bg-emerald-500/20 text-emerald-400"
-            />
-            <StatCard
-              label="Connections"
-              value="31"
-              change="via contact form"
-              icon={Zap}
-              color="bg-orange-500/20 text-orange-400"
-            />
+          {/* Portfolio Checklist Accordion */}
+          <div className="bg-zinc-900/40 border border-white/[0.06] rounded-2xl overflow-hidden transition-all duration-300">
+            <div
+              onClick={() => setChecklistOpen(!checklistOpen)}
+              className="flex items-center justify-between p-6 cursor-pointer hover:bg-white/[0.02] transition-colors"
+            >
+              <div className="space-y-1">
+                <h2 className="text-base font-bold text-white">Portfolio Checklist</h2>
+                <p className="text-sm text-zinc-400">Complete 1 more section</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-white">
+                  3/4
+                </span>
+                {checklistOpen ? (
+                  <ChevronUp className="w-5 h-5 text-zinc-500" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-zinc-500" />
+                )}
+              </div>
+            </div>
+
+            {checklistOpen && (
+              <div className="px-6 pb-6 border-t border-white/[0.06] pt-5 space-y-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-emerald-400 text-sm font-semibold mt-0.5">✓</span>
+                  <div>
+                    <p className="text-sm font-semibold text-white">Basic Information</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start justify-between border border-white/[0.06] bg-white/[0.01] rounded-xl p-4">
+                  <div className="flex gap-3">
+                    <span className="text-amber-500 text-sm font-semibold mt-0.5">⚠</span>
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-white">AI Personality</p>
+                      <ul className="list-disc pl-4 text-xs text-zinc-500 space-y-1">
+                        <li>Add your current role <span className="text-zinc-600">(required)</span></li>
+                        <li>Add what drives you <span className="text-zinc-600">(required)</span></li>
+                        <li>Add your communication style <span className="text-zinc-600">(required)</span></li>
+                      </ul>
+                    </div>
+                  </div>
+                  <button className="text-xs font-semibold bg-white text-black px-4 py-2 rounded-full hover:bg-zinc-200 transition-all self-start">
+                    Complete
+                  </button>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="text-emerald-400 text-sm font-semibold mt-0.5">✓</span>
+                  <div>
+                    <p className="text-sm font-semibold text-white">Tools</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="text-emerald-400 text-sm font-semibold mt-0.5">✓</span>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-white">Suggested Questions</p>
+                    <span className="px-2 py-0.5 text-[10px] font-bold bg-white/5 border border-white/10 rounded-full text-zinc-400">
+                      8
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Two-col layout: portfolios + quick actions */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-            {/* Portfolio list */}
-            <div className="xl:col-span-2 bg-zinc-900/50 border border-white/[0.06] rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="text-base font-bold text-white">My Portfolios</h2>
-                <button className="flex items-center gap-1.5 text-xs font-medium text-cyan-400 hover:text-cyan-300 transition-colors">
-                  View all <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2} />
-                </button>
-              </div>
-              <div className="flex flex-col gap-3">
-                {portfolios.map((p) => (
-                  <PortfolioCard key={p.name} {...p} />
-                ))}
-              </div>
-              <button className="mt-4 w-full py-3 rounded-xl border border-dashed border-white/10 text-zinc-600 hover:text-zinc-300 hover:border-white/20 text-sm transition-colors flex items-center justify-center gap-2">
-                + Create new portfolio
+          {/* Interactive AI Preview Sandbox Card */}
+          <div className="bg-zinc-900/30 border border-white/[0.06] rounded-3xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-72 bg-violet-600/5 rounded-full blur-[80px] pointer-events-none" />
+
+            <div className="text-center space-y-1 mb-8">
+              <span className="text-xs text-zinc-500 uppercase tracking-widest">Hey, I&apos;m {userName.toLowerCase().replace(/\s+/g, "")} 👋</span>
+              <h2 className="text-3xl font-extrabold text-white">AI Portfolio</h2>
+            </div>
+
+            {/* Custom sketch avatar */}
+            <div className="w-40 h-40 bg-zinc-950 border border-white/10 rounded-full flex items-center justify-center overflow-hidden mb-8 shadow-inner">
+              <svg viewBox="0 0 200 200" className="w-32 h-32 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M70,140 Q100,165 130,140" strokeLinecap="round" />
+                <circle cx="80" cy="95" r="5" fill="currentColor" />
+                <circle cx="120" cy="95" r="5" fill="currentColor" />
+                <path d="M100,98 L100,118" strokeLinecap="round" />
+                {/* Hair line */}
+                <path d="M50,90 Q100,50 150,90" strokeLinecap="round" />
+                <path d="M50,90 Q40,110 55,120" strokeLinecap="round" />
+                <path d="M150,90 Q160,110 145,120" strokeLinecap="round" />
+                {/* Minimalist Hat style outline */}
+                <path d="M60,60 L140,60 L130,35 L70,35 Z" fill="none" />
+                <path d="M45,65 Q100,75 155,65" strokeLinecap="round" />
+              </svg>
+            </div>
+
+            {/* Simulated Input field */}
+            <div className="w-full max-w-xl relative">
+              <input
+                type="text"
+                placeholder="Ask me anything..."
+                disabled
+                className="w-full bg-zinc-950/80 border border-white/10 rounded-full px-6 py-4 pr-14 text-sm text-white placeholder-zinc-500 outline-none cursor-not-allowed"
+              />
+              <button className="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 cursor-not-allowed">
+                →
               </button>
             </div>
 
-            {/* Quick actions */}
-            <div className="flex flex-col gap-4">
-              <div className="bg-zinc-900/50 border border-white/[0.06] rounded-2xl p-6">
-                <h2 className="text-base font-bold text-white mb-4">Quick Actions</h2>
-                <div className="flex flex-col gap-3">
-                  <QuickAction
-                    icon={Upload}
-                    label="Import from LinkedIn"
-                    description="Auto-build from your profile"
-                    gradient="bg-gradient-to-br from-blue-600 to-violet-600"
-                  />
-                  <QuickAction
-                    icon={Sparkles}
-                    label="Train AI Twin"
-                    description="Upload docs & Q&A"
-                    gradient="bg-gradient-to-br from-violet-600 to-pink-600"
-                  />
-                  <QuickAction
-                    icon={Globe}
-                    label="Set Custom Domain"
-                    description="yourname.com → your twin"
-                    gradient="bg-gradient-to-br from-cyan-600 to-teal-600"
-                  />
-                </div>
-              </div>
-
-              {/* AI Twin status card */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-violet-600/20 to-cyan-600/10 border border-violet-500/20 rounded-2xl p-6">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-[60px] pointer-events-none" />
-                <Sparkles className="w-6 h-6 text-violet-400 mb-3" strokeWidth={1.5} />
-                <p className="text-sm font-bold text-white mb-1">AI Twin Status</p>
-                <p className="text-xs text-zinc-400 mb-4">
-                  Trained on 3 sources · Last updated 2h ago
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-xs font-semibold text-emerald-400">Online & responding</span>
-                </div>
-              </div>
+            {/* Quick buttons */}
+            <div className="flex gap-3 mt-6">
+              <span className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-400">Video</span>
+              <span className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-400">Location</span>
             </div>
           </div>
+
+          {/* Analytics Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-zinc-950 border border-white/[0.06] rounded-2xl p-6">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Total messages used</p>
+              <p className="text-3xl font-extrabold text-white">2<span className="text-zinc-600 text-lg font-medium">/5</span></p>
+            </div>
+
+            <div className="bg-zinc-950 border border-white/[0.06] rounded-2xl p-6">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Messages today</p>
+              <p className="text-3xl font-extrabold text-white">0</p>
+            </div>
+
+            <div className="bg-zinc-950 border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Unlock Analytics</p>
+                <TrendingUp className="w-4 h-4 text-cyan-400" />
+              </div>
+              <p className="text-sm font-semibold text-cyan-400 mt-2 hover:underline cursor-pointer">Upgrade to access →</p>
+            </div>
+          </div>
+
+          {/* Recent Visitor Questions */}
+          <div className="bg-zinc-900/20 border border-white/[0.06] rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                Recent Visitor Questions
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              </h2>
+              <button className="text-xs text-zinc-400 hover:text-white transition-colors">
+                View all
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {[1, 2].map((_, i) => (
+                <div key={i} className="flex justify-between items-center py-3.5 px-4 bg-zinc-950/60 border border-white/[0.06] rounded-xl">
+                  <p className="text-sm font-medium text-white">Where are you located?</p>
+                  <p className="text-xs text-zinc-500">25d ago · Tunis, Tunisia</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom Quick Actions Row */}
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Quick Actions</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: "Basic Info", id: "basic-info" },
+                { label: "AI Personality", id: "ai-personality" },
+                { label: "Tools", id: "tools" },
+                { label: "Questions", id: "questions" },
+              ].map((act) => (
+                <button
+                  key={act.id}
+                  onClick={() => setActiveId(act.id)}
+                  className="p-4 rounded-xl border border-white/[0.06] bg-zinc-950 hover:bg-white/[0.02] hover:border-white/10 transition-all text-center text-xs font-semibold text-white cursor-pointer"
+                >
+                  {act.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Footer */}
+          <footer className="pt-8 border-t border-white/[0.06] flex flex-col md:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
+            <span>Fastfolio © 2026</span>
+            <div className="flex gap-6">
+              <span className="hover:text-white cursor-pointer">Dashboard</span>
+              <span className="hover:text-white cursor-pointer">Billing</span>
+              <span className="hover:text-white cursor-pointer">Support</span>
+            </div>
+            <div className="flex gap-6">
+              <span className="hover:text-white cursor-pointer">Terms</span>
+              <span className="hover:text-white cursor-pointer">Privacy</span>
+            </div>
+          </footer>
         </main>
       </div>
-
-      {/* Search modal */}
-      {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
     </div>
   );
 }

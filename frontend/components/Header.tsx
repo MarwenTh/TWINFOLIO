@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
+import { Sun, Moon } from "lucide-react";
 
 /**
  * Global site header with Clerk auth controls.
@@ -11,6 +12,25 @@ import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isSignedIn, isLoaded } = useUser();
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    // Initial sync
+    const isLight = document.documentElement.classList.contains("light");
+    setIsDark(!isLight);
+  }, []);
+
+  const toggleTheme = () => {
+    if (isDark) {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.remove("light");
+      document.documentElement.classList.add("dark");
+      setIsDark(true);
+    }
+  };
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-black/40 backdrop-blur-lg border-b border-white/10">
@@ -48,7 +68,16 @@ export default function Header() {
         </nav>
 
         {/* Auth Controls */}
-        <div className="flex gap-4 items-center min-w-[140px] justify-end">
+        <div className="flex gap-4 items-center min-w-[180px] justify-end">
+          {/* Theme switcher */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full border border-white/10 hover:bg-white/5 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            aria-label="Toggle Theme"
+          >
+            {isDark ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
+          </button>
+
           {/* Loading skeleton */}
           {!isLoaded && (
             <div className="w-9 h-9 rounded-full bg-white/10 animate-pulse" />
